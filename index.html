@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Orthodontic Payment Calculator</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background-color: #f7f7f7;
+      margin: 0;
+      padding: 2rem;
+      color: #333;
+    }
+    .calculator {
+      background: white;
+      max-width: 600px;
+      margin: auto;
+      padding: 2rem;
+      border-radius: 10px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    .calculator h2 {
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: bold;
+    }
+    input, select, button {
+      width: 100%;
+      padding: 0.5rem;
+      margin-bottom: 1rem;
+      border-radius: 5px;
+      border: 1px solid #ccc;
+    }
+    .result {
+      background: #eef6ff;
+      padding: 1rem;
+      border-radius: 5px;
+      font-size: 1.2rem;
+    }
+    @media print {
+      button#printButton {
+        display: none;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="calculator">
+    <h2>Orthodontic Payment Calculator</h2>
+
+    <label for="cost">Total Treatment Cost ($)</label>
+    <input type="number" id="cost" placeholder="e.g. 5800">
+
+    <label for="discount">Discount</label>
+    <input type="text" id="discount" placeholder="e.g. 500 or 10%">
+
+    <label for="downPayment">Down Payment ($)</label>
+    <input type="number" id="downPayment" placeholder="e.g. 580">
+
+    <label for="term">Payment Plan Length (months)</label>
+    <select id="term">
+      <option value="12">12 months</option>
+      <option value="18">18 months</option>
+      <option value="24" selected>24 months</option>
+      <option value="30">30 months</option>
+    </select>
+
+    <div class="result">
+      <p><strong>Monthly Payment:</strong> $<span id="monthly">0.00</span></p>
+      <p><strong>Upfront Payment:</strong> $<span id="upfront">0.00</span></p>
+      <p><strong>Total Amount Financed:</strong> $<span id="financed">0.00</span></p>
+    </div>
+
+    <button id="printButton" onclick="window.print()">Print Summary</button>
+  </div>
+
+  <script>
+    const costInput = document.getElementById('cost');
+    const discountInput = document.getElementById('discount');
+    const downPaymentInput = document.getElementById('downPayment');
+    const termInput = document.getElementById('term');
+
+    const monthlyOutput = document.getElementById('monthly');
+    const upfrontOutput = document.getElementById('upfront');
+    const financedOutput = document.getElementById('financed');
+
+    function parseDiscount(discountValue, totalCost) {
+      discountValue = discountValue.trim();
+      if (discountValue.endsWith('%')) {
+        const percent = parseFloat(discountValue.slice(0, -1));
+        return isNaN(percent) ? 0 : (totalCost * percent / 100);
+      }
+      const flat = parseFloat(discountValue);
+      return isNaN(flat) ? 0 : flat;
+    }
+
+    function calculate() {
+      const cost = parseFloat(costInput.value) || 0;
+      const discountRaw = discountInput.value || "0";
+      const downPayment = parseFloat(downPaymentInput.value) || 0;
+      const term = parseInt(termInput.value) || 24;
+
+      const discount = parseDiscount(discountRaw, cost);
+      const adjustedCost = Math.max(cost - discount, 0);
+      const amountFinanced = Math.max(adjustedCost - downPayment, 0);
+      const monthlyPayment = amountFinanced / term;
+
+      monthlyOutput.textContent = monthlyPayment.toFixed(2);
+      upfrontOutput.textContent = downPayment.toFixed(2);
+      financedOutput.textContent = amountFinanced.toFixed(2);
+    }
+
+    [costInput, discountInput, downPaymentInput, termInput].forEach(input => {
+      input.addEventListener('input', calculate);
+    });
+  </script>
+</body>
+</html>
